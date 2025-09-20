@@ -48,20 +48,13 @@ public class RewardsService {
 		CopyOnWriteArrayList<Attraction> attractions1 = new CopyOnWriteArrayList<>(attractions);
 
 			 for (VisitedLocation location : locations){
-				 CompletableFuture.runAsync(() -> {
 					for (Attraction attraction : attractions1) {
-						if (user.getUserRewards().stream().noneMatch(userReward -> userReward.attraction.attractionName.equals(attraction.attractionName))) {
-
-
+						if (user.getUserRewards().stream().noneMatch(r -> r.attraction.attractionName.equals(attraction.attractionName))) {
 								if (nearAttraction(location, attraction)) {
 									user.addUserReward(new UserReward(location, attraction, getRewardPoints(attraction, user)));
 								}
-							//Noter tester de crée un ComptableFuture<UserReward> avec un supplyAsync afin de crée un tableau pour stocker tout les UserReward et ainsi les retourner
-							//a voir si changement de l'appel de la méthode de void à UserReward.
-
 						}
 					}
-				 });
 			}
 	}
 	
