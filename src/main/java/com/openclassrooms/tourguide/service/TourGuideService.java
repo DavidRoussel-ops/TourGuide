@@ -94,13 +94,18 @@ public class TourGuideService {
 		return visitedLocation;
 	}
 
-	public List<Attraction> getNearByAttractions(VisitedLocation visitedLocation) {
+	public List<Attraction> getNearByAttractions(VisitedLocation visitedLocation, User user) {
 		List<Attraction> nearbyAttractions = new ArrayList<>();
-		for (Attraction attraction : gpsUtil.getAttractions()) {
-			if (rewardsService.isWithinAttractionProximity(attraction, visitedLocation.location)) {
+		if (visitedLocation.userId == user.getUserId()) {
+			for (Attraction attraction : gpsUtil.getAttractions()) {
+				Location loc1 = visitedLocation.location;
+				Location loc2 = new Location(attraction.latitude, attraction.longitude);
+				double distance = rewardsService.getDistance(loc1, loc2);
+				System.out.println("La distance est de : " + distance + ".");
 				nearbyAttractions.add(attraction);
 			}
 		}
+
 
 		return nearbyAttractions;
 	}
