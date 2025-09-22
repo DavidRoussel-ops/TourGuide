@@ -66,7 +66,7 @@ public class RewardsService {
 		return !(getDistance(visitedLocation.location, attraction) > proximityBuffer);
 	}
 	
-	private int getRewardPoints(Attraction attraction, User user) {
+	public int getRewardPoints(Attraction attraction, User user) {
 		return rewardsCentral.getAttractionRewardPoints(attraction.attractionId, user.getUserId());
 	}
 	
