@@ -14,13 +14,13 @@ public class NearbyAttractions {
 
     private double distance;
 
-    private UserReward userReward;
+    private int userReward;
 
     public NearbyAttractions() {
         super();
     }
 
-    public NearbyAttractions(String name, Attraction attraction, VisitedLocation visitedLocation, double distance, UserReward userReward) {
+    public NearbyAttractions(String name, Attraction attraction, VisitedLocation visitedLocation, double distance, int userReward) {
         this.name = name;
         this.attraction = attraction;
         this.visitedLocation = visitedLocation;
@@ -60,11 +60,11 @@ public class NearbyAttractions {
         this.distance = distance;
     }
 
-    public UserReward getUserReward() {
+    public int getUserReward() {
         return userReward;
     }
 
-    public void setUserReward(UserReward userReward) {
+    public void setUserReward(int userReward) {
         this.userReward = userReward;
     }
 }
