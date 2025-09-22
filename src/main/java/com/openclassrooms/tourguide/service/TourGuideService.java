@@ -1,5 +1,6 @@
 package com.openclassrooms.tourguide.service;
 
+import com.openclassrooms.tourguide.NearbyAttractions;
 import com.openclassrooms.tourguide.helper.InternalTestHelper;
 import com.openclassrooms.tourguide.tracker.Tracker;
 import com.openclassrooms.tourguide.user.User;
@@ -7,15 +8,7 @@ import com.openclassrooms.tourguide.user.UserReward;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
-import java.util.stream.Collectors;
+import java.util.*;
 import java.util.stream.IntStream;
 
 import org.slf4j.Logger;
@@ -94,21 +87,30 @@ public class TourGuideService {
 		return visitedLocation;
 	}
 
-	public List<Attraction> getNearByAttractions(VisitedLocation visitedLocation, User user) {
-		List<Attraction> nearbyAttractions = new ArrayList<>();
-		if (visitedLocation.userId == user.getUserId()) {
-			for (Attraction attraction : gpsUtil.getAttractions()) {
-				Location loc1 = visitedLocation.location;
-				Location loc2 = new Location(attraction.latitude, attraction.longitude);
-				double distance = rewardsService.getDistance(loc1, loc2);
-				System.out.println("La distance est de : " + distance + ".");
-				nearbyAttractions.add(attraction);
-			}
+	public List<NearbyAttractions> getNearByAttractions(VisitedLocation visitedLocation, User user) {
+		List<NearbyAttractions> nearbyAttractionsList = new ArrayList<>();
+
+		for (Attraction attraction : gpsUtil.getAttractions()) {
+			Location loc1 = visitedLocation.location;
+			Location loc2 = new Location(attraction.latitude, attraction.longitude);
+			double distance = rewardsService.getDistance(loc1, loc2);
+			NearbyAttractions nearbyAttractions1 = new NearbyAttractions();
+			nearbyAttractions1.setName(attraction.attractionName);
+			nearbyAttractions1.setAttraction(attraction);
+			nearbyAttractions1.setVisitedLocation(visitedLocation);
+			nearbyAttractions1.setDistance(distance);
+			nearbyAttractions1.setUserReward(rewardsService.getRewardPoints(attraction, user));
+			nearbyAttractionsList.add(nearbyAttractions1);
 		}
 
-
-		return nearbyAttractions;
+        return nearbyAttractionsList
+				.stream()
+				.sorted(Comparator.comparingDouble(NearbyAttractions::getDistance))
+				.limit(5)
+				.toList();
 	}
+
+
 
 	private void addShutDownHook() {
 		Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -165,4 +167,11 @@ public class TourGuideService {
 		return Date.from(localDateTime.toInstant(ZoneOffset.UTC));
 	}
 
+}
+
+class NearbyAttractionsComparator implements java.util.Comparator<NearbyAttractions> {
+	@Override
+	public int compare(NearbyAttractions a, NearbyAttractions b) {
+		return (int) (a.getDistance() - b.getDistance());
+	}
 }
