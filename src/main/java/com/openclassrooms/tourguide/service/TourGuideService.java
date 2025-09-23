@@ -9,6 +9,8 @@ import com.openclassrooms.tourguide.user.UserReward;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
 import org.slf4j.Logger;
@@ -73,10 +75,40 @@ public class TourGuideService {
 
 	public List<Provider> getTripDeals(User user) {
 		int cumulatativeRewardPoints = user.getUserRewards().stream().mapToInt(UserReward::getRewardPoints).sum();
-		List<Provider> providers = tripPricer.getPrice(tripPricerApiKey, user.getUserId(),
+		List<Provider> providers = getPrice(tripPricerApiKey, user.getUserId(),
 				user.getUserPreferences().getNumberOfAdults(), user.getUserPreferences().getNumberOfChildren(),
 				user.getUserPreferences().getTripDuration(), cumulatativeRewardPoints);
 		user.setTripDeals(providers);
+		return providers;
+	}
+
+	public List<Provider> getPrice(String apiKey, UUID attractionId, int adults, int children, int nightsStay, int rewardsPoints) {
+		List<Provider> providers = new ArrayList<>();
+		Set<String> providersUsed = new HashSet<>();
+
+		try {
+			TimeUnit.MILLISECONDS.sleep(ThreadLocalRandom.current().nextInt(1, 50));
+		} catch (InterruptedException ignored) {
+		}
+
+		for(int i = 0; i < 10; ++i) {
+			int multiple = ThreadLocalRandom.current().nextInt(100, 700);
+			double childrenDiscount = (double) children / 3;
+			double price = (double)(multiple * adults) + (double)multiple * childrenDiscount * (double)nightsStay + 0.99 - (double)rewardsPoints;
+			if (price < 0.0) {
+				price = 0.0;
+			}
+
+			String provider = "";
+
+			do {
+				provider = tripPricer.getProviderName(apiKey, adults);
+			} while(providersUsed.size() > 10);
+
+			providersUsed.add(provider);
+			providers.add(new Provider(attractionId, provider, price));
+		}
+
 		return providers;
 	}
 
@@ -167,11 +199,4 @@ public class TourGuideService {
 		return Date.from(localDateTime.toInstant(ZoneOffset.UTC));
 	}
 
-}
-
-class NearbyAttractionsComparator implements java.util.Comparator<NearbyAttractions> {
-	@Override
-	public int compare(NearbyAttractions a, NearbyAttractions b) {
-		return (int) (a.getDistance() - b.getDistance());
-	}
 }
