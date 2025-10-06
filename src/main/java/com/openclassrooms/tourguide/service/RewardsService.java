@@ -42,14 +42,10 @@ public class RewardsService {
 	}
 
 	public void calculateRewards(User user) {
-
-		ExecutorService executorService = Executors.newFixedThreadPool(5000);
-		try {
 			List<VisitedLocation> userLocations = user.getVisitedLocations();
 			List<Attraction> attractions = gpsUtil.getAttractions();
 			CopyOnWriteArrayList<VisitedLocation> locations = new CopyOnWriteArrayList<>(userLocations);
 			CopyOnWriteArrayList<Attraction> attractions1 = new CopyOnWriteArrayList<>(attractions);
-			CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
 				for (VisitedLocation location : locations){
 
 					for (Attraction attraction : attractions1) {
@@ -61,13 +57,6 @@ public class RewardsService {
 					}
 
 				}
-			}, executorService);
-		} finally {
-			executorService.shutdown();
-		}
-
-
-
 	}
 	
 	public boolean isWithinAttractionProximity(Attraction attraction, Location location) {
