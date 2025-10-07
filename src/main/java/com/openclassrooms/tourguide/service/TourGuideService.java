@@ -9,8 +9,7 @@ import com.openclassrooms.tourguide.user.UserReward;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.stream.IntStream;
 
 import org.slf4j.Logger;
@@ -117,6 +116,25 @@ public class TourGuideService {
 		user.addToVisitedLocations(visitedLocation);
 		rewardsService.calculateRewards(user);
 		return visitedLocation;
+	}
+
+	public void trackUserLocation(List<User> users) {
+		List<CompletableFuture<VisitedLocation>> futures = new ArrayList<>();
+		ExecutorService executorService = Executors.newFixedThreadPool(5000);
+		try {
+			for (User user : users) {
+				CompletableFuture<VisitedLocation> completableFuture = CompletableFuture.supplyAsync(() -> {
+                    try {
+                        return trackUserLocation(user);
+                    } finally {}
+				}, executorService);
+				futures.add(completableFuture);
+			}
+			CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+			System.out.println("Nombre d'utilisateur dont l'emplacement à était suivi : " + users.size());
+		} finally {
+			executorService.shutdown();
+		}
 	}
 
 	public List<NearbyAttractions> getNearByAttractions(VisitedLocation visitedLocation, User user) {
