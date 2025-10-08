@@ -58,6 +58,28 @@ public class RewardsService {
 
 				}
 	}
+
+	public void calculateRewards(List<User> users) {
+		List<CompletableFuture<Boolean>> futures = new ArrayList<>();
+		ExecutorService executorService = Executors.newFixedThreadPool(5000);
+		try {
+			for (User user : users) {
+				CompletableFuture<Boolean> completableFuture = CompletableFuture.supplyAsync(() -> {
+					try {
+						calculateRewards(user);
+					} catch (Exception e) {
+						System.out.println("Error : " + e.getMessage());
+					}
+					return true;
+				}, executorService);
+				futures.add(completableFuture);
+			}
+			CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+			System.out.println("Nombre d'utilisateur dont le calcul des récompenses ont était traiter : " + users.size());
+		} finally {
+			executorService.shutdown();
+		}
+	}
 	
 	public boolean isWithinAttractionProximity(Attraction attraction, Location location) {
 		return !(getDistance(attraction, location) > attractionProximityRange);
