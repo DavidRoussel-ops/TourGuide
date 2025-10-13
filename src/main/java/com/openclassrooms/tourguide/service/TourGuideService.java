@@ -126,8 +126,10 @@ public class TourGuideService {
 				CompletableFuture<VisitedLocation> completableFuture = CompletableFuture.supplyAsync(() -> {
                     try {
                         return trackUserLocation(user);
-                    } finally {}
-				}, executorService);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                }, executorService);
 				futures.add(completableFuture);
 			}
 			CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
