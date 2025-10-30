@@ -1,4 +1,4 @@
-package com.openclassrooms.tourguide.tracker;
+package com.openclassrooms.tourguide.model;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -10,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.openclassrooms.tourguide.service.TourGuideService;
-import com.openclassrooms.tourguide.model.User;
 
 public class Tracker extends Thread {
 	private final Logger logger = LoggerFactory.getLogger(Tracker.class);

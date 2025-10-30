@@ -1,10 +1,10 @@
 package com.openclassrooms.tourguide.service;
 
-import com.openclassrooms.tourguide.NearbyAttractions;
+import com.openclassrooms.tourguide.model.NearByAttractions;
 import com.openclassrooms.tourguide.helper.InternalTestHelper;
-import com.openclassrooms.tourguide.tracker.Tracker;
-import com.openclassrooms.tourguide.user.User;
-import com.openclassrooms.tourguide.user.UserReward;
+import com.openclassrooms.tourguide.model.Tracker;
+import com.openclassrooms.tourguide.model.User;
+import com.openclassrooms.tourguide.model.UserReward;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -139,25 +139,25 @@ public class TourGuideService {
 		}
 	}
 
-	public List<NearbyAttractions> getNearByAttractions(VisitedLocation visitedLocation, User user) {
-		List<NearbyAttractions> nearbyAttractionsList = new ArrayList<>();
+	public List<NearByAttractions> getNearByAttractions(VisitedLocation visitedLocation, User user) {
+		List<NearByAttractions> nearByAttractionsList = new ArrayList<>();
 
 		for (Attraction attraction : gpsUtil.getAttractions()) {
 			Location loc1 = visitedLocation.location;
 			Location loc2 = new Location(attraction.latitude, attraction.longitude);
 			double distance = rewardsService.getDistance(loc1, loc2);
-			NearbyAttractions nearbyAttractions1 = new NearbyAttractions();
-			nearbyAttractions1.setName(attraction.attractionName);
-			nearbyAttractions1.setAttraction(attraction);
-			nearbyAttractions1.setVisitedLocation(visitedLocation);
-			nearbyAttractions1.setDistance(distance);
-			nearbyAttractions1.setUserReward(rewardsService.getRewardPoints(attraction, user));
-			nearbyAttractionsList.add(nearbyAttractions1);
+			NearByAttractions nearByAttractions1 = new NearByAttractions();
+			nearByAttractions1.setName(attraction.attractionName);
+			nearByAttractions1.setAttraction(attraction);
+			nearByAttractions1.setVisitedLocation(visitedLocation);
+			nearByAttractions1.setDistance(distance);
+			nearByAttractions1.setUserReward(rewardsService.getRewardPoints(attraction, user));
+			nearByAttractionsList.add(nearByAttractions1);
 		}
 
-        return nearbyAttractionsList
+        return nearByAttractionsList
 				.stream()
-				.sorted(Comparator.comparingDouble(NearbyAttractions::getDistance))
+				.sorted(Comparator.comparingDouble(NearByAttractions::getDistance))
 				.limit(5)
 				.toList();
 	}
